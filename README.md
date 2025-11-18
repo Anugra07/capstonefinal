@@ -57,3 +57,7 @@ npm run dev
 - Tailwind CSS styling
 - Prisma ORM with Neon PostgreSQL database
 # capstonefinal
+
+
+frontend = "https://capstonefinal-lilac.vercel.app/dashboard"
+backend = "https://capstonefinal-1.onrender.com"
