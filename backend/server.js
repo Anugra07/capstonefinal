@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
+import spacesRoutes from './routes/spaces.js';
+import journalRoutes from './routes/journal.js';
+import tasksRoutes from './routes/tasks.js';
 
 dotenv.config();
 
@@ -29,6 +32,9 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/spaces', spacesRoutes);
+app.use('/api/journal', journalRoutes);
+app.use('/api/tasks', tasksRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

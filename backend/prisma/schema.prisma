@@ -1,17 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   email     String   @unique
-  password  String
   name      String?
+  avatarUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  spaces    SpaceMember[]
+  messages  Message[]
+  journalEntries JournalEntry[]
+  tasks     Task[]
+}
+
+model Space {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  problemStatement String?
+  inviteToken String   @unique @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     SpaceMember[]
+  journalEntries JournalEntry[]
+  tasks       Task[]
+  messages    Message[]
+  documents   Document[]
+}
+
+model SpaceMember {
+  id        String   @id @default(uuid())
+  userId    String
+  spaceId   String
+  role      String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  joinedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  space     Space    @relation(fields: [spaceId], references: [id])
+
+  @@unique([userId, spaceId])
+}
+
+model JournalEntry {
+  id        String   @id @default(uuid())
+  spaceId   String
+  userId    String
+  title     String
+  content   String   @db.Text
+  sentiment String?
+  createdAt DateTime @default(now())
+
+  space     Space    @relation(fields: [spaceId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  spaceId     String
+  userId      String?  // Assigned to
+  title       String
+  description String?
+  status      String   @default("TODO") // TODO, IN_PROGRESS, DONE
+  category    String?  // Idea Validation, Prototype, etc.
+  isAiGenerated Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  space       Space    @relation(fields: [spaceId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  spaceId   String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  space     Space    @relation(fields: [spaceId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  spaceId   String
+  title     String
+  url       String
+  summary   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  space     Space    @relation(fields: [spaceId], references: [id])
 }
