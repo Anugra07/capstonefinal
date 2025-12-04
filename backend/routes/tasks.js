@@ -37,6 +37,19 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Delete task
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.task.delete({
+            where: { id }
+        });
+        res.json({ message: 'Task deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete task' });
+    }
+});
+
 // Mock AI Generate Tasks
 router.post('/generate', async (req, res) => {
     const { spaceId } = req.body;

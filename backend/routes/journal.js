@@ -1,5 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import { storeEmbedding } from '../utils/ai.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -31,9 +32,33 @@ router.post('/', async (req, res) => {
                 content
             }
         });
+
+        // Store embedding asynchronously
+        storeEmbedding('JOURNAL', entry.id, `${title}\n${content}`, spaceId);
+
         res.json(entry);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to create journal entry' });
+    }
+});
+
+// Delete entry
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Delete associated embedding first
+        await prisma.embedding.deleteMany({
+            where: { sourceId: id, type: 'JOURNAL' }
+        });
+
+        // Delete the journal entry
+        await prisma.journalEntry.delete({
+            where: { id }
+        });
+
+        res.json({ message: 'Journal entry deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete journal entry' });
     }
 });
 

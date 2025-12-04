@@ -6,6 +6,8 @@ import spacesRoutes from './routes/spaces.js';
 import journalRoutes from './routes/journal.js';
 import tasksRoutes from './routes/tasks.js';
 import messagesRoutes from './routes/messages.js';
+import documentsRoutes from './routes/documents.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -39,6 +41,8 @@ app.use('/api/spaces', spacesRoutes);
 app.use('/api/journal', journalRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/messages', messagesRoutes);
+app.use('/api/documents', documentsRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

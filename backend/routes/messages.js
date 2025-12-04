@@ -1,5 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import { storeEmbedding } from '../utils/ai.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -25,11 +26,35 @@ router.post('/', async (req, res) => {
     try {
         const message = await prisma.message.create({
             data: { spaceId, userId, content },
-            include: { user: { select: { id: true, name: true, email: true } } }
+            include: { user: { select: { name: true, email: true } } }
         });
+
+        // Store embedding asynchronously
+        storeEmbedding('CHAT', message.id, content, spaceId);
+
         res.json(message);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to create message' });
+    }
+});
+
+// Delete message
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Delete associated embedding first
+        await prisma.embedding.deleteMany({
+            where: { sourceId: id, type: 'CHAT' }
+        });
+
+        // Delete the message
+        await prisma.message.delete({
+            where: { id }
+        });
+
+        res.json({ message: 'Message deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete message' });
     }
 });
 
