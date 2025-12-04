@@ -18,7 +18,7 @@ const Onboarding = () => {
         if (step < 3) {
             setStep(step + 1);
         } else {
-            navigate('/create-space');
+            navigate('/space-selector');
         }
     };
 
@@ -69,8 +69,8 @@ const Onboarding = () => {
                                         key={option}
                                         onClick={() => setFormData({ ...formData, stage: option })}
                                         className={`w-full p-4 rounded-xl border-2 text-left transition-all ${formData.stage === option
-                                                ? 'border-gray-900 bg-gray-50'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-gray-900 bg-gray-50'
+                                            : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
@@ -96,8 +96,8 @@ const Onboarding = () => {
                                         key={option}
                                         onClick={() => toggleSelection('lookingFor', option)}
                                         className={`p-4 rounded-xl border-2 text-center transition-all ${formData.lookingFor.includes(option)
-                                                ? 'border-gray-900 bg-gray-50'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-gray-900 bg-gray-50'
+                                            : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                     >
                                         <div className="flex flex-col items-center gap-2">

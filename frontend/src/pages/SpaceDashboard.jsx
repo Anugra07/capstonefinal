@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, CheckSquare, MessageSquare, Users, FileText, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, CheckSquare, MessageSquare, Users, FileText, Settings, LogOut, Bot } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CoFounderChat from '../components/AI/CoFounderChat';
 
 const SpaceDashboard = () => {
     const { id } = useParams();
@@ -9,6 +10,7 @@ const SpaceDashboard = () => {
     const navigate = useNavigate();
     const { signOut } = useAuth();
     const [space, setSpace] = useState(null);
+    const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
     useEffect(() => {
         const fetchSpace = async () => {
@@ -64,6 +66,19 @@ const SpaceDashboard = () => {
                     <p className="text-sm text-gray-500 truncate">{space?.description}</p>
                 </div>
 
+                {/* AI Co-founder Button */}
+                <div className="px-4 pt-4">
+                    <button
+                        onClick={() => setIsAiChatOpen(true)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-emerald-50 to-white border border-emerald-200 rounded-lg hover:shadow-sm transition-all group"
+                    >
+                        <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <Bot size={14} className="text-emerald-600" />
+                        </div>
+                        <span className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">AI Co-founder</span>
+                    </button>
+                </div>
+
                 {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-1">
                     {navItems.map((item) => {
@@ -73,8 +88,8 @@ const SpaceDashboard = () => {
                                 key={item.label}
                                 to={item.path}
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
-                                        ? 'bg-gray-900 text-white'
-                                        : 'text-gray-700 hover:bg-gray-100'
+                                    ? 'bg-gray-900 text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
                                 <item.icon size={20} />
@@ -104,6 +119,9 @@ const SpaceDashboard = () => {
             <main className="flex-1 overflow-auto bg-gray-50">
                 <Outlet context={{ space }} />
             </main>
+
+            {/* AI Chat Overlay */}
+            <CoFounderChat isOpen={isAiChatOpen} onClose={() => setIsAiChatOpen(false)} space={space} />
         </div>
     );
 };
