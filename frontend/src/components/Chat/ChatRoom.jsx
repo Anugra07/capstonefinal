@@ -1,70 +1,92 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Send, Paperclip, Smile } from 'lucide-react';
-import { supabase } from '../../supabaseClient';
+import { useAuth } from '../../context/AuthContext';
+
+const API_URL = 'http://localhost:4000/api';
 
 const ChatRoom = () => {
     const { id: spaceId } = useParams();
+    const { user } = useAuth();
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        // Initial fetch (mock for now as backend route not fully connected to DB for messages yet)
-        // In real implementation: fetch from /api/messages/:spaceId
-        setMessages([
-            { id: 1, user: 'Alice', content: 'Hey team, did we finish the user interviews?', time: '10:00 AM', isMe: false },
-            { id: 2, user: 'Bob', content: 'Yes, I uploaded the notes to the Docs section.', time: '10:05 AM', isMe: false },
-        ]);
+        fetchMessages();
 
-        // Realtime subscription
-        const channel = supabase
-            .channel(`space-${spaceId}`)
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'Message', filter: `spaceId=eq.${spaceId}` }, (payload) => {
-                setMessages(prev => [...prev, payload.new]);
-            })
-            .subscribe();
+        // Poll for new messages every 2 seconds
+        const interval = setInterval(fetchMessages, 2000);
 
-        return () => {
-            supabase.removeChannel(channel);
-        };
+        return () => clearInterval(interval);
     }, [spaceId]);
 
-    const handleSend = () => {
-        if (!newMessage.trim()) return;
+    const fetchMessages = async () => {
+        try {
+            const response = await fetch(`${API_URL}/messages/${spaceId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setMessages(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch messages:', error);
+        }
+    };
 
-        // Optimistic update
-        const msg = {
-            id: Date.now(),
-            user: 'Me',
-            content: newMessage,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isMe: true
-        };
-        setMessages([...messages, msg]);
-        setNewMessage('');
+    const handleSend = async () => {
+        if (!newMessage.trim() || !user) return;
 
-        // Scroll to bottom
-        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        try {
+            const response = await fetch(`${API_URL}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    spaceId,
+                    userId: user.id,
+                    content: newMessage
+                })
+            });
+
+            if (response.ok) {
+                setNewMessage('');
+                fetchMessages(); // Refresh messages immediately
+                setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+            }
+        } catch (error) {
+            console.error('Failed to send message:', error);
+        }
+    };
+
+    const formatTime = (dateString) => {
+        return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
     return (
         <div className="flex flex-col h-full bg-slate-900">
             <div className="p-4 border-b border-slate-700 bg-slate-800">
                 <h2 className="font-bold">Team Chat</h2>
-                <p className="text-xs text-slate-400">3 members online</p>
+                <p className="text-xs text-slate-400">Real-time collaboration</p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((msg) => (
-                    <div key={msg.id} className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[70%] ${msg.isMe ? 'bg-blue-600' : 'bg-slate-700'} rounded-xl p-3`}>
-                            {!msg.isMe && <p className="text-xs font-bold text-slate-300 mb-1">{msg.user}</p>}
-                            <p className="text-sm">{msg.content}</p>
-                            <p className="text-[10px] text-slate-300/70 mt-1 text-right">{msg.time}</p>
+                {messages.map((msg) => {
+                    const isMe = user && msg.userId === user.id;
+                    return (
+                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[70%] ${isMe ? 'bg-blue-600' : 'bg-slate-700'} rounded-xl p-3`}>
+                                {!isMe && (
+                                    <p className="text-xs font-bold text-slate-300 mb-1">
+                                        {msg.user?.name || msg.user?.email || 'Unknown'}
+                                    </p>
+                                )}
+                                <p className="text-sm">{msg.content}</p>
+                                <p className="text-[10px] text-slate-300/70 mt-1 text-right">
+                                    {formatTime(msg.createdAt)}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
                 <div ref={messagesEndRef} />
             </div>
 

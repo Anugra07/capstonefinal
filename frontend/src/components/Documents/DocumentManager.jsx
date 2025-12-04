@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Upload, FileText, Download, Trash2, Sparkles } from 'lucide-react';
-import { supabase } from '../../supabaseClient';
 
 const DocumentManager = () => {
     const { id: spaceId } = useParams();

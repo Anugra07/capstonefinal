@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, CheckSquare, MessageSquare, Users, FileText, Settings, Activity } from 'lucide-react';
+import { useParams, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, BookOpen, CheckSquare, MessageSquare, Users, FileText, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const SpaceDashboard = () => {
     const { id } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
+    const { signOut } = useAuth();
     const [space, setSpace] = useState(null);
 
     useEffect(() => {
-        // Fetch space details
-        // For now using mock data if fetch fails
         const fetchSpace = async () => {
             try {
                 const res = await fetch(`http://localhost:4000/api/spaces/${id}`);
@@ -22,7 +23,7 @@ const SpaceDashboard = () => {
             } catch (e) {
                 setSpace({
                     name: 'My Startup',
-                    description: 'Revolutionizing the world with AI.'
+                    description: 'Building the future'
                 });
             }
         };
@@ -38,44 +39,69 @@ const SpaceDashboard = () => {
         { icon: Users, label: 'Team', path: 'team' },
     ];
 
+    const handleSignOut = () => {
+        signOut();
+        navigate('/');
+    };
+
     return (
-        <div className="flex h-screen bg-slate-900 text-white">
+        <div className="flex h-screen bg-gray-50">
             {/* Sidebar */}
-            <aside className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
-                <div className="p-6 border-b border-slate-700">
-                    <h1 className="text-xl font-bold truncate">{space?.name || 'Loading...'}</h1>
-                    <p className="text-sm text-slate-400 truncate">{space?.description}</p>
+            <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+                {/* Logo */}
+                <div className="p-6 border-b border-gray-200">
+                    <div className="flex items-center gap-2 mb-1">
+                        <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">F</span>
+                        </div>
+                        <span className="font-semibold text-gray-900">FounderFlow</span>
+                    </div>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-2">
+                {/* Space Info */}
+                <div className="px-6 py-4 border-b border-gray-200">
+                    <h2 className="font-semibold text-gray-900 truncate">{space?.name || 'Loading...'}</h2>
+                    <p className="text-sm text-gray-500 truncate">{space?.description}</p>
+                </div>
+
+                {/* Navigation */}
+                <nav className="flex-1 p-4 space-y-1">
                     {navItems.map((item) => {
                         const isActive = location.pathname === `/space/${id}${item.path ? '/' + item.path : ''}`;
                         return (
                             <Link
                                 key={item.label}
                                 to={item.path}
-                                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${isActive
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
+                                        ? 'bg-gray-900 text-white'
+                                        : 'text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
                                 <item.icon size={20} />
-                                <span>{item.label}</span>
+                                <span className="font-medium">{item.label}</span>
                             </Link>
                         );
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-700">
-                    <button className="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:text-white transition w-full">
+                {/* Footer */}
+                <div className="p-4 border-t border-gray-200 space-y-1">
+                    <button className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors w-full">
                         <Settings size={20} />
-                        <span>Settings</span>
+                        <span className="font-medium">Settings</span>
+                    </button>
+                    <button
+                        onClick={handleSignOut}
+                        className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors w-full"
+                    >
+                        <LogOut size={20} />
+                        <span className="font-medium">Sign out</span>
                     </button>
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto bg-gray-50">
                 <Outlet context={{ space }} />
             </main>
         </div>

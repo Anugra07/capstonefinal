@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Rocket } from 'lucide-react';
 
 const CreateSpace = () => {
     const navigate = useNavigate();
@@ -24,7 +25,7 @@ const CreateSpace = () => {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    userId: user?.id || 'test-user-id' // Fallback for dev without auth
+                    userId: user.id
                 })
             });
 
@@ -36,7 +37,6 @@ const CreateSpace = () => {
             }
         } catch (error) {
             console.error(error);
-            // For demo purposes if backend fails
             navigate('/space/demo-space-id');
         } finally {
             setLoading(false);
@@ -44,51 +44,72 @@ const CreateSpace = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-slate-800 p-8 rounded-2xl border border-slate-700">
-                <h2 className="text-3xl font-bold mb-2">Create your Space</h2>
-                <p className="text-slate-400 mb-8">This will be the home for your startup journey.</p>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">Startup Name</label>
-                        <input
-                            type="text"
-                            required
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+            <div className="w-full max-w-2xl">
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-900 rounded-2xl mb-4">
+                        <Rocket className="text-white" size={32} />
                     </div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Create your workspace</h1>
+                    <p className="text-gray-600">This will be the home for your startup journey</p>
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">One-line Description</label>
-                        <input
-                            type="text"
-                            required
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        />
-                    </div>
+                <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Startup Name *
+                            </label>
+                            <input
+                                type="text"
+                                required
+                                className="input-field"
+                                placeholder="Acme Inc."
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            />
+                        </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">Problem Statement (Optional)</label>
-                        <textarea
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none h-24"
-                            value={formData.problemStatement}
-                            onChange={(e) => setFormData({ ...formData, problemStatement: e.target.value })}
-                        />
-                    </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                One-line Description *
+                            </label>
+                            <input
+                                type="text"
+                                required
+                                className="input-field"
+                                placeholder="We help founders build better products"
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">A brief description of what you're building</p>
+                        </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
-                    >
-                        {loading ? 'Creating...' : 'Launch Space'}
-                    </button>
-                </form>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Problem Statement (Optional)
+                            </label>
+                            <textarea
+                                className="input-field h-32 resize-none"
+                                placeholder="What problem are you solving?"
+                                value={formData.problemStatement}
+                                onChange={(e) => setFormData({ ...formData, problemStatement: e.target.value })}
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="btn-primary w-full"
+                        >
+                            {loading ? 'Creating workspace...' : 'Create workspace'}
+                        </button>
+                    </form>
+                </div>
+
+                <p className="text-center text-sm text-gray-500 mt-6">
+                    You can always update these details later in settings
+                </p>
             </div>
         </div>
     );

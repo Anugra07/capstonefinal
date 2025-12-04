@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Plus, Sparkles } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const Journal = () => {
     const { id: spaceId } = useParams();
+    const { user } = useAuth();
     const [entries, setEntries] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newEntry, setNewEntry] = useState({ title: '', content: '' });
@@ -32,7 +34,7 @@ const Journal = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     spaceId,
-                    userId: 'test-user-id', // Replace with real user
+                    userId: user.id,
                     ...newEntry
                 })
             });

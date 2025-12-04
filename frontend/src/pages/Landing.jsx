@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ArrowRight, CheckCircle2, Sparkles, BarChart3, Users } from 'lucide-react';
 
 const Landing = () => {
     const navigate = useNavigate();
@@ -8,62 +9,158 @@ const Landing = () => {
 
     const handleGetStarted = () => {
         if (user) {
-            navigate('/dashboard');
+            navigate('/create-space');
         } else {
             navigate('/signup');
         }
     };
 
+    const features = [
+        {
+            icon: Sparkles,
+            title: 'AI-Powered Insights',
+            description: 'Get intelligent feedback on your progress, identify blockers, and receive actionable recommendations.'
+        },
+        {
+            icon: BarChart3,
+            title: 'Track Your Progress',
+            description: 'Journal your founder journey and visualize your momentum with AI-generated analytics.'
+        },
+        {
+            icon: Users,
+            title: 'Team Collaboration',
+            description: 'Work seamlessly with co-founders, mentors, and advisors in real-time workspaces.'
+        }
+    ];
+
     return (
-        <div className="min-h-screen bg-slate-900 text-white">
+        <div className="min-h-screen bg-white">
             {/* Navbar */}
-            <nav className="flex justify-between items-center p-6 max-w-7xl mx-auto">
-                <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
-                    FounderFlow
-                </div>
-                <div className="space-x-4">
-                    <button onClick={() => navigate('/login')} className="hover:text-blue-400 transition">Login</button>
-                    <button
-                        onClick={() => navigate('/signup')}
-                        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition"
-                    >
-                        Sign Up
-                    </button>
+            <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">F</span>
+                        </div>
+                        <span className="text-xl font-semibold text-gray-900">FounderFlow</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="text-gray-700 hover:text-gray-900 font-medium px-4 py-2 transition"
+                        >
+                            Log in
+                        </button>
+                        <button
+                            onClick={() => navigate('/signup')}
+                            className="btn-primary"
+                        >
+                            Sign up
+                        </button>
+                    </div>
                 </div>
             </nav>
 
-            {/* Hero */}
-            <main className="flex flex-col items-center justify-center text-center mt-20 px-4">
-                <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                    Your Founder Journey, <br />
-                    <span className="text-blue-500">Supercharged by AI.</span>
-                </h1>
-                <p className="text-xl text-slate-400 max-w-2xl mb-10">
-                    From idea to validation to growth. Manage your startup's journal, tasks, and team in one intelligent workspace.
-                </p>
-                <button
-                    onClick={handleGetStarted}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-8 py-4 rounded-full font-semibold transition transform hover:scale-105"
-                >
-                    Start Your Founder Journey
-                </button>
+            {/* Hero Section */}
+            <section className="max-w-7xl mx-auto px-6 pt-20 pb-16">
+                <div className="max-w-3xl mx-auto text-center">
+                    <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                        <Sparkles size={16} />
+                        <span>AI-Powered Startup Platform</span>
+                    </div>
 
-                {/* Features Preview */}
-                <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    <div className="p-6 bg-slate-800 rounded-xl border border-slate-700">
-                        <h3 className="text-xl font-bold mb-2">AI Journaling</h3>
-                        <p className="text-slate-400">Track your progress and get instant feedback and coaching from our AI.</p>
-                    </div>
-                    <div className="p-6 bg-slate-800 rounded-xl border border-slate-700">
-                        <h3 className="text-xl font-bold mb-2">Smart Tasks</h3>
-                        <p className="text-slate-400">Let AI generate your next milestones based on your current stage.</p>
-                    </div>
-                    <div className="p-6 bg-slate-800 rounded-xl border border-slate-700">
-                        <h3 className="text-xl font-bold mb-2">Team Sync</h3>
-                        <p className="text-slate-400">Collaborate with co-founders and mentors in real-time spaces.</p>
+                    <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                        Your startup journey,
+                        <br />
+                        <span className="text-emerald-600">supercharged by AI</span>
+                    </h1>
+
+                    <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+                        From idea to validation to growth. Manage your journal, tasks, and team in one intelligent workspace built for founders.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button
+                            onClick={handleGetStarted}
+                            className="btn-accent inline-flex items-center gap-2 text-lg px-8 py-4"
+                        >
+                            Start your journey
+                            <ArrowRight size={20} />
+                        </button>
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="btn-secondary text-lg px-8 py-4"
+                        >
+                            View demo
+                        </button>
                     </div>
                 </div>
-            </main>
+            </section>
+
+            {/* Features Grid */}
+            <section className="max-w-7xl mx-auto px-6 py-20">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {features.map((feature, index) => (
+                        <div key={index} className="card group hover:border-gray-300">
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-emerald-50 transition-colors">
+                                <feature.icon className="text-gray-700 group-hover:text-emerald-600 transition-colors" size={24} />
+                            </div>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                            <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Social Proof */}
+            <section className="max-w-7xl mx-auto px-6 py-16 border-t border-gray-200">
+                <div className="text-center">
+                    <p className="text-sm text-gray-500 uppercase tracking-wide font-medium mb-8">
+                        Trusted by founders worldwide
+                    </p>
+                    <div className="flex flex-wrap justify-center items-center gap-12 opacity-40">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="w-32 h-8 bg-gray-200 rounded"></div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="bg-gray-50 border-t border-gray-200">
+                <div className="max-w-4xl mx-auto px-6 py-20 text-center">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                        Ready to build your startup?
+                    </h2>
+                    <p className="text-lg text-gray-600 mb-8">
+                        Join thousands of founders using FounderFlow to turn their ideas into reality.
+                    </p>
+                    <button
+                        onClick={handleGetStarted}
+                        className="btn-accent inline-flex items-center gap-2 text-lg px-8 py-4"
+                    >
+                        Get started for free
+                        <ArrowRight size={20} />
+                    </button>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="border-t border-gray-200 bg-white">
+                <div className="max-w-7xl mx-auto px-6 py-12">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-gray-900 rounded flex items-center justify-center">
+                                <span className="text-white font-bold text-xs">F</span>
+                            </div>
+                            <span className="font-semibold text-gray-900">FounderFlow</span>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                            © 2024 FounderFlow. Built for founders, by founders.
+                        </p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };

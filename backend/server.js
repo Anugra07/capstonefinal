@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.js';
 import spacesRoutes from './routes/spaces.js';
 import journalRoutes from './routes/journal.js';
 import tasksRoutes from './routes/tasks.js';
+import messagesRoutes from './routes/messages.js';
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ const PORT = process.env.PORT || 4000;
 
 // CORS: explicitly allow Vercel domains and handle preflight
 const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
   'https://capstonefinal-lilac.vercel.app',
   'https://capstonefinal-egpquqn9x-anugra07s-projects.vercel.app'
 ];
@@ -35,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/spaces', spacesRoutes);
 app.use('/api/journal', journalRoutes);
 app.use('/api/tasks', tasksRoutes);
+app.use('/api/messages', messagesRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
