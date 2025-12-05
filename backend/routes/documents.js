@@ -32,8 +32,6 @@ const upload = multer({
     dest: 'uploads/',
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
     fileFilter: (req, file, cb) => {
-        console.log('File filter - mimetype:', file.mimetype);
-        console.log('File filter - originalname:', file.originalname);
         // Accept PDF files by MIME type or extension
         if (file.mimetype === 'application/pdf' || 
             file.mimetype === 'application/x-pdf' ||
@@ -97,17 +95,11 @@ router.post('/upload', (req, res, next) => {
     });
 }, async (req, res) => {
     try {
-        console.log('Upload request received');
-        console.log('Request body:', req.body);
-        console.log('Request file:', req.file);
-        
         if (!req.file) {
-            console.error('No file in request');
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
         const { spaceId } = req.body;
-        console.log('SpaceId from body:', spaceId);
         
         if (!spaceId) {
             return res.status(400).json({ error: 'spaceId is required' });

@@ -13,7 +13,9 @@ const DashboardOverview = () => {
     const [seeding, setSeeding] = useState(false);
 
     useEffect(() => {
-        fetchDashboardData();
+        if (space?.id) {
+            fetchDashboardData();
+        }
     }, [space?.id]);
 
     const fetchDashboardData = async () => {
@@ -198,14 +200,14 @@ const DashboardOverview = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {stats.map((stat, index) => (
-                    <div key={index} className="card">
+                    <div key={index} className="card group">
                         <div className="flex items-center justify-between mb-4">
                             <span className="text-sm font-medium text-gray-600">{stat.label}</span>
-                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <stat.icon className="text-gray-700" size={20} />
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-50 transition-all duration-300 group-hover:scale-110">
+                                <stat.icon className={`text-gray-700 group-hover:text-emerald-600 transition-all duration-300 ${stat.positive ? 'group-hover:scale-110' : ''}`} size={20} />
                             </div>
                         </div>
-                        <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
+                        <div className="text-3xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">{stat.value}</div>
                         <div className={`text-sm ${stat.positive ? 'text-emerald-600' : 'text-gray-500'}`}>
                             {stat.change}
                         </div>
@@ -220,8 +222,8 @@ const DashboardOverview = () => {
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
                     <div className="space-y-4">
                         {activities.map((activity, index) => (
-                            <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                                <div className="w-2 h-2 mt-2 rounded-full bg-emerald-500"></div>
+                            <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 hover:border-gray-200 transition-all duration-200 hover:scale-[1.01] cursor-default">
+                                <div className="w-2 h-2 mt-2 rounded-full bg-emerald-500 animate-pulse"></div>
                                 <div className="flex-1">
                                     <p className="font-medium text-gray-900">{activity.text}</p>
                                     <p className="text-sm text-gray-500 mt-1">{activity.time} by {activity.user}</p>

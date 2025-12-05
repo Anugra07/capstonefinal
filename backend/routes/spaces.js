@@ -7,6 +7,11 @@ const prisma = new PrismaClient();
 // Create a new space
 router.post('/', async (req, res) => {
     const { name, description, problemStatement, userId, isPublic = true } = req.body;
+    
+    if (!name || !userId) {
+        return res.status(400).json({ error: 'name and userId are required' });
+    }
+    
     try {
         const space = await prisma.space.create({
             data: {
@@ -24,7 +29,8 @@ router.post('/', async (req, res) => {
         });
         res.json(space);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error creating space:', error);
+        res.status(500).json({ error: 'Failed to create space: ' + error.message });
     }
 });
 
@@ -78,6 +84,28 @@ router.post('/join', async (req, res) => {
         res.json({ space, member });
     } catch (error) {
         console.error('Error joining space:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get user's pending join requests (must come before /:spaceId/requests to avoid route conflicts)
+router.get('/user/:userId/requests', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const requests = await prisma.spaceJoinRequest.findMany({
+            where: {
+                userId,
+                status: 'PENDING'
+            },
+            include: {
+                space: { select: { id: true, name: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.json(requests);
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });

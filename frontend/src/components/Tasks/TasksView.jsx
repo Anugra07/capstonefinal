@@ -17,7 +17,9 @@ const Tasks = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        fetchTasks();
+        if (spaceId) {
+            fetchTasks();
+        }
     }, [spaceId]);
 
     const fetchTasks = async (page = currentPage) => {
@@ -29,9 +31,17 @@ const Tasks = () => {
                 setTasks(response.data || []);
                 setPagination(response.pagination);
                 setCurrentPage(page);
+            } else {
+                // Handle non-OK responses
+                const errorData = await res.json().catch(() => ({ error: 'Failed to fetch tasks' }));
+                console.error('Error fetching tasks:', errorData);
+                setTasks([]);
+                setPagination(null);
             }
         } catch (e) {
-            console.error(e);
+            console.error('Error fetching tasks:', e);
+            setTasks([]);
+            setPagination(null);
         } finally {
             setFetching(false);
         }
@@ -53,8 +63,8 @@ const Tasks = () => {
             if (res.ok) {
                 const newTasks = await res.json();
                 // Create tasks via API for each generated task
-                for (const task of newTasks) {
-                    await fetch('http://localhost:4000/api/tasks', {
+                const createPromises = newTasks.map(task => 
+                    fetch('http://localhost:4000/api/tasks', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -63,10 +73,17 @@ const Tasks = () => {
                             category: task.category || null,
                             userId: user?.id || null
                         })
-                    });
+                    })
+                );
+                
+                const results = await Promise.allSettled(createPromises);
+                const failed = results.filter(r => r.status === 'rejected').length;
+                if (failed > 0) {
+                    console.warn(`${failed} tasks failed to create`);
                 }
+                
                 // Refresh tasks from server after creating all
-                fetchTasks(1); // Reset to page 1 to see new tasks
+                await fetchTasks(1); // Reset to page 1 to see new tasks
             }
         } catch (e) {
             console.error('Error generating tasks:', e);
@@ -261,7 +278,7 @@ const Tasks = () => {
                                     </>
                                 ) : (
                                     tasks.filter(t => t.status === column.id).map((task) => (
-                                    <div key={task.id} className="card-flat hover:border-gray-300 transition-colors cursor-pointer group">
+                                    <div key={task.id} className="card-flat hover:border-gray-300 hover:shadow-md transition-all duration-300 ease-out cursor-pointer group hover:scale-[1.02]">
                                         <div className="flex items-start justify-between mb-2">
                                             {task.category && (
                                                 <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
@@ -274,7 +291,7 @@ const Tasks = () => {
                                                 )}
                                                 <button
                                                     onClick={() => deleteTask(task.id)}
-                                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
+                                                    className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 hover:bg-red-50 rounded hover:scale-110 active:scale-95"
                                                     title="Delete task"
                                                 >
                                                     <Trash2 size={14} className="text-red-600" />

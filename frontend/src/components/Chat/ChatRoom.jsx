@@ -16,6 +16,7 @@ const ChatRoom = () => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
+        if (!spaceId) return;
         fetchMessages();
         const interval = setInterval(fetchMessages, 2000);
         return () => clearInterval(interval);
@@ -31,7 +32,6 @@ const ChatRoom = () => {
                 const messagesData = result.data || result;
                 // Reverse the array since backend returns newest first, but we want oldest first for display
                 const reversedMessages = Array.isArray(messagesData) ? [...messagesData].reverse() : [];
-                console.log('Fetched messages:', reversedMessages.length, 'messages with user data:', reversedMessages.map(m => ({ id: m.id, userId: m.userId, userName: m.user?.name, userEmail: m.user?.email })));
                 setMessages(reversedMessages);
             } else {
                 console.error('Failed to fetch messages:', response.statusText);
@@ -122,8 +122,8 @@ const ChatRoom = () => {
                     messages.map((msg) => {
                         const isMe = user && msg.userId === user.id;
                         return (
-                            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] sm:max-w-[70%] ${isMe ? 'bg-gray-900' : 'bg-white border border-gray-200'} rounded-2xl px-3 sm:px-4 py-2 sm:py-3 shadow-sm`}>
+                            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-slide-in`}>
+                                <div className={`max-w-[85%] sm:max-w-[70%] ${isMe ? 'bg-gray-900 hover:bg-gray-800' : 'bg-white border border-gray-200 hover:border-gray-300'} rounded-2xl px-3 sm:px-4 py-2 sm:py-3 shadow-sm transition-all duration-200 hover:shadow-md`}>
                                     {!isMe && (
                                         <p className="text-xs font-semibold text-gray-600 mb-1">
                                             {msg.user?.name || msg.user?.email || 'Unknown'}
@@ -155,9 +155,9 @@ const ChatRoom = () => {
                     <button
                         onClick={handleSend}
                         disabled={!newMessage.trim() || sending || !user}
-                        className="p-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                        className="p-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex-shrink-0"
                     >
-                        <Send size={18} />
+                        <Send size={18} className="transition-transform hover:translate-x-0.5" />
                     </button>
                 </div>
             </div>

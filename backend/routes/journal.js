@@ -45,6 +45,11 @@ router.get('/:spaceId', async (req, res) => {
 // Create entry
 router.post('/', async (req, res) => {
     const { spaceId, userId, title, content } = req.body;
+    
+    if (!spaceId || !userId || !title || !content) {
+        return res.status(400).json({ error: 'spaceId, userId, title, and content are required' });
+    }
+    
     try {
         const entry = await prisma.journalEntry.create({
             data: {
@@ -60,7 +65,8 @@ router.post('/', async (req, res) => {
 
         res.json(entry);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to create journal entry' });
+        console.error('Error creating journal entry:', error);
+        res.status(500).json({ error: 'Failed to create journal entry: ' + error.message });
     }
 });
 

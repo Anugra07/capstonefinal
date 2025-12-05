@@ -82,10 +82,10 @@ const Landing = () => {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <button
                             onClick={handleGetStarted}
-                            className="btn-accent inline-flex items-center gap-2 text-lg px-8 py-4"
+                            className="btn-accent inline-flex items-center gap-2 text-lg px-8 py-4 group"
                         >
                             Start your journey
-                            <ArrowRight size={20} />
+                            <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
                         </button>
                         <button
                             onClick={() => navigate('/login')}
@@ -102,10 +102,10 @@ const Landing = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                     {features.map((feature, index) => (
                         <div key={index} className="card group hover:border-gray-300">
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-emerald-50 transition-colors">
-                                <feature.icon className="text-gray-700 group-hover:text-emerald-600 transition-colors" size={24} />
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-emerald-50 transition-all duration-300 group-hover:scale-110">
+                                <feature.icon className="text-gray-700 group-hover:text-emerald-600 transition-all duration-300" size={24} />
                             </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">{feature.title}</h3>
                             <p className="text-gray-600 leading-relaxed">{feature.description}</p>
                         </div>
                     ))}

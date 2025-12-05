@@ -19,7 +19,9 @@ const Journal = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        fetchEntries();
+        if (spaceId) {
+            fetchEntries();
+        }
     }, [spaceId]);
 
     const fetchEntries = async (page = currentPage) => {
@@ -31,9 +33,17 @@ const Journal = () => {
                 setEntries(response.data || []);
                 setPagination(response.pagination);
                 setCurrentPage(page);
+            } else {
+                // Handle non-OK responses
+                const errorData = await res.json().catch(() => ({ error: 'Failed to fetch entries' }));
+                console.error('Error fetching journal entries:', errorData);
+                setEntries([]);
+                setPagination(null);
             }
         } catch (e) {
-            console.error(e);
+            console.error('Error fetching journal entries:', e);
+            setEntries([]);
+            setPagination(null);
         } finally {
             setLoading(false);
         }
@@ -186,7 +196,7 @@ const Journal = () => {
 
                             <div className="space-y-6">
                                 {entries.map((entry) => (
-                                    <div key={entry.id} className="card">
+                                    <div key={entry.id} className="card group">
                                         {editingEntry === entry.id ? (
                                             <div className="space-y-4">
                                                 <input
@@ -227,14 +237,14 @@ const Journal = () => {
                                                     <div className="flex gap-2 sm:ml-4 flex-shrink-0">
                                                         <button
                                                             onClick={() => handleEditEntry(entry)}
-                                                            className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition"
+                                                            className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                                                             title="Edit entry"
                                                         >
                                                             <Edit2 size={18} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDeleteEntry(entry.id)}
-                                                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"
+                                                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                                                             title="Delete entry"
                                                         >
                                                             <Trash2 size={18} />

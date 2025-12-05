@@ -21,11 +21,14 @@ const SpaceSelector = () => {
 
     useEffect(() => {
         fetchSpaces();
-        if (user) {
+    }, []);
+
+    useEffect(() => {
+        if (user?.id) {
             fetchUserSpaces();
             fetchPendingRequests();
         }
-    }, [user]);
+    }, [user?.id]);
 
     const fetchSpaces = async () => {
         setLoading(true);
@@ -54,8 +57,11 @@ const SpaceSelector = () => {
     const fetchPendingRequests = async () => {
         if (!user) return;
         try {
-            // We'll track pending requests locally for now
-            // In a real app, you might want to fetch this from an endpoint
+            const response = await fetch(`http://localhost:4000/api/spaces/user/${user.id}/requests`);
+            if (response.ok) {
+                const data = await response.json();
+                setPendingRequests(data);
+            }
         } catch (error) {
             console.error('Error fetching pending requests:', error);
         }
@@ -211,7 +217,7 @@ const SpaceSelector = () => {
                             className="btn-secondary inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                         >
                             {joining ? 'Joining...' : 'Join'}
-                            <ArrowRight size={18} />
+                            <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                         </button>
                     </div>
                     {error && (
@@ -254,7 +260,7 @@ const SpaceSelector = () => {
                             const memberCount = space._count?.members || space.members?.length || 0;
 
                             return (
-                                <div key={space.id} className="card hover:border-gray-300 transition-all">
+                                <div key={space.id} className="card hover:border-gray-300 group">
                                     <div className="flex items-start justify-between mb-3">
                                         <h3 className="text-lg font-semibold text-gray-900 flex-1">{space.name}</h3>
                                         {isMember && (
@@ -279,19 +285,19 @@ const SpaceSelector = () => {
                                     {!isMember && !hasPending && user && (
                                         <button
                                             onClick={() => handleApply(space)}
-                                            className="btn-secondary w-full inline-flex items-center justify-center gap-2 text-sm"
+                                            className="btn-secondary w-full inline-flex items-center justify-center gap-2 text-sm group"
                                         >
-                                            <Send size={16} />
+                                            <Send size={16} className="transition-transform group-hover:translate-x-1" />
                                             Apply to Join
                                         </button>
                                     )}
                                     {isMember && (
                                         <button
                                             onClick={() => navigate(`/space/${space.id}`)}
-                                            className="btn-primary w-full inline-flex items-center justify-center gap-2 text-sm"
+                                            className="btn-primary w-full inline-flex items-center justify-center gap-2 text-sm group"
                                         >
                                             Open Space
-                                            <ArrowRight size={16} />
+                                            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                                         </button>
                                     )}
                                     {!user && (

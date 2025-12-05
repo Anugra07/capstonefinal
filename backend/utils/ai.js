@@ -25,7 +25,7 @@ export async function generateEmbedding(text) {
 
 /**
  * Store an embedding in the database
- * @param {string} type - "CHAT", "JOURNAL", "DOC"
+ * @param {string} type - "CHAT", "JOURNAL", "DOC", "TASK"
  * @param {string} sourceId - ID of the source item
  * @param {string} content - Text content
  * @param {string} spaceId - Space ID
@@ -54,12 +54,13 @@ export async function storeEmbedding(type, sourceId, content, spaceId) {
  * @param {number} limit - Number of results to return
  * @returns {Promise<Array>}
  */
-export async function searchContext(query, spaceId, limit = 5) {
+export async function searchContext(query, spaceId, limit = 10) {
     try {
         const vector = await generateEmbedding(query);
         if (!vector) return [];
 
         // Use raw query to find nearest neighbors using cosine distance (<=>)
+        // Get more results to ensure we have diverse data types
         const results = await prisma.$queryRaw`
       SELECT id, content, type, "createdAt"
       FROM "Embedding"

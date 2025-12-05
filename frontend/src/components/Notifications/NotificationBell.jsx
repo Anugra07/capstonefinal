@@ -9,13 +9,13 @@ const NotificationBell = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (user) {
+        if (user?.id) {
             fetchNotifications();
             // Poll for new notifications every 10 seconds
             const interval = setInterval(fetchNotifications, 10000);
             return () => clearInterval(interval);
         }
-    }, [user]);
+    }, [user?.id]);
 
     const fetchNotifications = async () => {
         if (!user) return;
@@ -81,11 +81,11 @@ const NotificationBell = () => {
         <div className="relative">
             <button
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="relative p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
             >
-                <Bell size={20} className="text-gray-700" />
+                <Bell size={20} className="text-gray-700 transition-transform hover:rotate-12" />
                 {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-scale-in shadow-sm">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
@@ -97,13 +97,13 @@ const NotificationBell = () => {
                         className="fixed inset-0 z-40"
                         onClick={() => setShowDropdown(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-96 overflow-hidden flex flex-col">
+                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-96 overflow-hidden flex flex-col animate-scale-in">
                         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                             <h3 className="font-semibold text-gray-900">Notifications</h3>
                             {unreadCount > 0 && (
                                 <button
                                     onClick={markAllAsRead}
-                                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium transition-colors hover:underline"
                                 >
                                     Mark all read
                                 </button>
@@ -122,7 +122,7 @@ const NotificationBell = () => {
                                     {notifications.map((notification) => (
                                         <div
                                             key={notification.id}
-                                            className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+                                            className={`p-4 hover:bg-gray-50 transition-all duration-200 cursor-pointer hover:scale-[1.01] ${
                                                 !notification.read ? 'bg-blue-50' : ''
                                             }`}
                                             onClick={() => {

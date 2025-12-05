@@ -113,10 +113,10 @@ const SpaceDashboard = () => {
                             setIsAiChatOpen(true);
                             setIsMobileMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-emerald-50 to-white border border-emerald-200 rounded-lg hover:shadow-sm transition-all group"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-emerald-50 to-white border border-emerald-200 rounded-lg hover:shadow-md hover:border-emerald-300 hover:scale-[1.02] transition-all duration-300 ease-out group"
                     >
-                        <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center">
-                            <Bot size={14} className="text-emerald-600" />
+                        <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                            <Bot size={14} className="text-emerald-600 group-hover:scale-110 transition-transform" />
                         </div>
                         <span className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">AI Co-founder</span>
                     </button>
@@ -131,12 +131,12 @@ const SpaceDashboard = () => {
                                 key={item.label}
                                 to={item.path}
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
-                                    ? 'bg-gray-900 text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ease-out ${isActive
+                                    ? 'bg-gray-900 text-white shadow-sm'
+                                    : 'text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98]'
                                     }`}
                             >
-                                <item.icon size={20} />
+                                <item.icon size={20} className={isActive ? '' : 'transition-transform group-hover:scale-110'} />
                                 <span className="font-medium">{item.label}</span>
                             </Link>
                         );
@@ -145,15 +145,15 @@ const SpaceDashboard = () => {
 
                 {/* Footer */}
                 <div className="p-4 border-t border-gray-200 space-y-1">
-                    <button className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors w-full">
-                        <Settings size={20} />
+                    <button className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] w-full group">
+                        <Settings size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                         <span className="font-medium">Settings</span>
                     </button>
                     <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors w-full"
+                        className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] w-full group"
                     >
-                        <LogOut size={20} />
+                        <LogOut size={20} className="group-hover:translate-x-1 transition-transform duration-200" />
                         <span className="font-medium">Sign out</span>
                     </button>
                 </div>

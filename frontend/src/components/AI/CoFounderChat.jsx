@@ -148,9 +148,9 @@ const CoFounderChat = ({ isOpen, onClose, space }) => {
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || loading}
-                        className="absolute right-2 top-2 p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="absolute right-2 top-2 p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                        <Send size={16} />
+                        <Send size={16} className="transition-transform hover:translate-x-0.5" />
                     </button>
                 </div>
                 <p className="text-center text-[10px] text-gray-400 mt-2">

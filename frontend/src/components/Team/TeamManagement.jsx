@@ -16,7 +16,9 @@ const TeamManagement = () => {
     const [userRole, setUserRole] = useState(null);
 
     useEffect(() => {
-        fetchSpaceAndMembers();
+        if (spaceId) {
+            fetchSpaceAndMembers();
+        }
     }, [spaceId]);
 
     useEffect(() => {
@@ -159,7 +161,7 @@ const TeamManagement = () => {
                                     onClick={copyInviteLink}
                                     className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto"
                                 >
-                                    {copied ? <Check size={18} /> : <Copy size={18} />}
+                                    {copied ? <Check size={18} className="animate-scale-in" /> : <Copy size={18} className="transition-transform hover:rotate-12" />}
                                     {copied ? 'Copied!' : 'Copy'}
                                 </button>
                             </div>
@@ -296,22 +298,23 @@ const TeamManagement = () => {
                         <p className="text-center text-gray-500 py-8">No team members yet</p>
                     ) : (
                         members.map((member) => {
-                            const memberName = member.name || member.email?.split('@')[0] || 'U';
-                            const memberInitial = memberName.charAt(0).toUpperCase();
+                            const userName = member.user?.name || member.user?.email?.split('@')[0] || 'Unknown User';
+                            const userEmail = member.user?.email || 'No email';
+                            const memberInitial = userName.charAt(0).toUpperCase();
                             return (
-                            <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+                            <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-md transition-all duration-300 ease-out hover:scale-[1.01] group">
                                 <div className="flex items-center gap-3 sm:gap-4">
-                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <span className="text-gray-700 font-semibold text-base sm:text-lg">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 transition-colors">
+                                        <span className="text-gray-700 group-hover:text-emerald-700 font-semibold text-base sm:text-lg transition-colors">
                                             {memberInitial}
                                         </span>
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <h4 className="font-medium text-gray-900 truncate">{memberName}</h4>
+                                            <h4 className="font-medium text-gray-900 truncate">{userName}</h4>
                                             {getRoleIcon(member.role)}
                                         </div>
-                                        <p className="text-sm text-gray-500 truncate">{member.email || 'No email'}</p>
+                                        <p className="text-sm text-gray-500 truncate">{userEmail}</p>
                                     </div>
                                 </div>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">

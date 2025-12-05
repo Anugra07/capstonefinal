@@ -43,29 +43,29 @@
 
   /* Button Styles */
   .btn-primary {
-    @apply bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-300 ease-out shadow-sm hover:shadow-lg hover:scale-[1.02] active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-gray-900 font-medium px-6 py-2.5 rounded-lg border border-gray-300 transition-all duration-200;
+    @apply bg-white hover:bg-gray-50 text-gray-900 font-medium px-6 py-2.5 rounded-lg border border-gray-300 transition-all duration-300 ease-out hover:border-gray-400 hover:shadow-sm active:scale-[0.98];
   }
 
   .btn-accent {
-    @apply bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-300 ease-out shadow-sm hover:shadow-lg hover:scale-[1.02] active:scale-[0.98];
   }
 
   /* Input Styles */
   .input-field {
-    @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition text-gray-900 placeholder-gray-400;
+    @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-400 hover:border-gray-400;
   }
 
   /* Card Styles */
   .card {
-    @apply bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200;
+    @apply bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-300 ease-out;
   }
 
   .card-flat {
-    @apply bg-gray-50 border border-gray-200 rounded-xl p-6;
+    @apply bg-gray-50 border border-gray-200 rounded-xl p-6 hover:bg-gray-100 transition-colors duration-200;
   }
 }
 
@@ -107,11 +107,73 @@
   }
 }
 
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
 }
 
 /* Focus Visible for Accessibility */
 *:focus-visible {
   @apply outline-none ring-2 ring-gray-900 ring-offset-2;
+}
+
+/* Subtle hover effects for interactive elements */
+a, button {
+  @apply transition-all duration-200 ease-out;
+}
+
+/* Link hover effects */
+a:not(.btn-primary):not(.btn-secondary):not(.btn-accent):hover {
+  @apply opacity-80;
+}
+
+/* Icon hover effects */
+svg {
+  @apply transition-all duration-200;
+}
+
+/* Smooth transitions for all interactive elements */
+[role="button"], 
+button:not(:disabled),
+input[type="button"],
+input[type="submit"],
+input[type="file"] + label {
+  @apply cursor-pointer transition-all duration-200 ease-out;
+}
+
+/* Disabled state */
+button:disabled,
+input:disabled {
+  @apply opacity-50 cursor-not-allowed;
 }

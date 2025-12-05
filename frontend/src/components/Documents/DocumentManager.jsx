@@ -17,7 +17,9 @@ const DocumentManager = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        fetchDocuments();
+        if (spaceId) {
+            fetchDocuments();
+        }
     }, [spaceId]);
 
     const fetchDocuments = async (page = currentPage) => {
@@ -29,9 +31,17 @@ const DocumentManager = () => {
                 setDocuments(response.data || []);
                 setPagination(response.pagination);
                 setCurrentPage(page);
+            } else {
+                // Handle non-OK responses
+                const errorData = await res.json().catch(() => ({ error: 'Failed to fetch documents' }));
+                console.error('Error fetching documents:', errorData);
+                setDocuments([]);
+                setPagination(null);
             }
         } catch (error) {
             console.error('Error fetching documents:', error);
+            setDocuments([]);
+            setPagination(null);
         } finally {
             setLoading(false);
         }
@@ -196,7 +206,7 @@ const DocumentManager = () => {
                         </div>
                     ) : (
                         documents.map((doc) => (
-                        <div key={doc.id} className="card hover:border-gray-300 transition-colors">
+                        <div key={doc.id} className="card hover:border-gray-300 group">
                             {editingDoc === doc.id ? (
                                 <div className="space-y-4">
                                     <div>
@@ -238,8 +248,8 @@ const DocumentManager = () => {
                             ) : (
                                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                                        <div className="p-2 bg-gray-100 rounded-lg flex-shrink-0">
-                                            <FileText className="text-gray-700" size={20} />
+                                        <div className="p-2 bg-gray-100 rounded-lg flex-shrink-0 group-hover:bg-emerald-50 transition-colors">
+                                            <FileText className="text-gray-700 group-hover:text-emerald-600 transition-colors" size={20} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-semibold text-gray-900 mb-1 truncate">{doc.title}</h3>
@@ -252,24 +262,24 @@ const DocumentManager = () => {
                                     <div className="flex gap-2 flex-shrink-0">
                                         <button
                                             onClick={() => analyzeDocument(doc)}
-                                            className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition"
+                                            className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                                             title="AI Analysis"
                                         >
-                                            <Sparkles size={18} />
+                                            <Sparkles size={18} className="transition-transform hover:rotate-12" />
                                         </button>
                                         <button
                                             onClick={() => handleEditDocument(doc)}
-                                            className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition"
+                                            className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                                             title="Edit document"
                                         >
                                             <Edit2 size={18} />
                                         </button>
-                                        <button className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition">
-                                            <Download size={18} />
+                                        <button className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95">
+                                            <Download size={18} className="transition-transform hover:translate-y-[-2px]" />
                                         </button>
                                         <button 
                                             onClick={() => handleDeleteDocument(doc.id)}
-                                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"
+                                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                                             title="Delete document"
                                         >
                                             <Trash2 size={18} />
