@@ -1,0 +1,20 @@
+{
+  "watch": [
+    "routes",
+    "utils",
+    "server.js",
+    "prisma"
+  ],
+  "ext": "js,json",
+  "ignore": [
+    "node_modules",
+    "uploads",
+    "*.test.js",
+    "test-*.js"
+  ],
+  "exec": "node server.js",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
+

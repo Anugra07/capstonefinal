@@ -68,7 +68,8 @@ export const AuthProvider = ({ children }) => {
             setToken(data.token);
             setUser(data.user);
 
-            return { data: data.user, error: null };
+            // Return full data including spaces
+            return { data, error: null };
         } catch (error) {
             return { error: { message: 'Connection error' } };
         }

@@ -37,6 +37,8 @@ model User {
   messages  Message[]
   journalEntries JournalEntry[]
   tasks     Task[]
+  joinRequests SpaceJoinRequest[]
+  notifications Notification[]
 }
 
 model Space {
@@ -45,6 +47,7 @@ model Space {
   description String?
   problemStatement String?
   inviteToken String   @unique @default(uuid())
+  isPublic    Boolean  @default(true) // Whether space is visible in public listings
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -54,6 +57,7 @@ model Space {
   messages    Message[]
   documents   Document[]
   embeddings  Embedding[]
+  joinRequests SpaceJoinRequest[]
 }
 
 model SpaceMember {
@@ -117,4 +121,35 @@ model Document {
   createdAt DateTime @default(now())
 
   space     Space    @relation(fields: [spaceId], references: [id])
+}
+
+model SpaceJoinRequest {
+  id        String   @id @default(uuid())
+  userId    String
+  spaceId   String
+  reason    String?  @db.Text // Why they want to join
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reviewedBy String? // User ID who reviewed the request
+  reviewedAt DateTime?
+
+  user      User     @relation(fields: [userId], references: [id])
+  space     Space    @relation(fields: [spaceId], references: [id])
+
+  @@unique([userId, spaceId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // "JOIN_REQUEST_APPROVED", "JOIN_REQUEST_REJECTED", "JOIN_REQUEST_RECEIVED"
+  title     String
+  message   String   @db.Text
+  spaceId   String?
+  requestId String?  // SpaceJoinRequest ID if related
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
 }

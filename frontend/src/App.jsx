@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import Onboarding from './pages/Onboarding';
 import SpaceSelector from './pages/SpaceSelector';
 import CreateSpace from './pages/CreateSpace';
+import JoinSpace from './pages/JoinSpace';
 import SpaceDashboard from './pages/SpaceDashboard';
 import DashboardOverview from './components/Dashboard/Overview';
 import Journal from './components/Journal/JournalView';
@@ -25,6 +26,7 @@ function App() {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/space-selector" element={<SpaceSelector />} />
         <Route path="/create-space" element={<CreateSpace />} />
+        <Route path="/join/:token" element={<JoinSpace />} />
 
         <Route path="/space/:id" element={<SpaceDashboard />}>
           <Route index element={<DashboardOverview />} />

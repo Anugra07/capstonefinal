@@ -16,13 +16,20 @@ function Login() {
     setError('');
     setLoading(true);
 
-    const { error } = await signIn({ email, password });
+    const { error, data } = await signIn({ email, password });
 
     if (error) {
       setError(error.message);
       setLoading(false);
     } else {
-      navigate('/onboarding');
+      // Check if user has existing spaces
+      if (data?.spaces && data.spaces.length > 0) {
+        // Redirect to their first space
+        navigate(`/space/${data.spaces[0].id}`);
+      } else {
+        // New user or user with no spaces - go to onboarding
+        navigate('/onboarding');
+      }
     }
   };
 

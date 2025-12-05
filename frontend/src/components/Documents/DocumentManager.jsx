@@ -1,45 +1,89 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Upload, FileText, Download, Trash2, Sparkles } from 'lucide-react';
+import { Upload, FileText, Download, Trash2, Sparkles, Edit2, X, Save } from 'lucide-react';
+import { SkeletonDocumentCard } from '../Skeleton';
+import Pagination from '../Pagination';
 
 const DocumentManager = () => {
     const { id: spaceId } = useParams();
-    const [documents, setDocuments] = useState([
-        {
-            id: 1,
-            title: 'Market Research - Q1 2024.pdf',
-            url: '#',
-            summary: 'Comprehensive market analysis showing 40% YoY growth in target segment.',
-            createdAt: '2024-01-15'
-        },
-        {
-            id: 2,
-            title: 'User Interview Notes.docx',
-            url: '#',
-            summary: 'Key insights from 15 user interviews highlighting pain points.',
-            createdAt: '2024-01-20'
-        },
-    ]);
+    const [documents, setDocuments] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [aiInsight, setAiInsight] = useState(null);
+    const [editingDoc, setEditingDoc] = useState(null);
+    const [editForm, setEditForm] = useState({ title: '', summary: '' });
+    const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        fetchDocuments();
+    }, [spaceId]);
+
+    const fetchDocuments = async (page = currentPage) => {
+        setLoading(true);
+        try {
+            const res = await fetch(`http://localhost:4000/api/documents/${spaceId}?page=${page}&limit=10`);
+            if (res.ok) {
+                const response = await res.json();
+                setDocuments(response.data || []);
+                setPagination(response.pagination);
+                setCurrentPage(page);
+            }
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePageChange = (newPage) => {
+        fetchDocuments(newPage);
+    };
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Validate file type
+        if (file.type !== 'application/pdf') {
+            alert('Please upload a PDF file');
+            return;
+        }
+
+        // Validate file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB');
+            return;
+        }
+
         setUploading(true);
-        setTimeout(() => {
-            const newDoc = {
-                id: Date.now(),
-                title: file.name,
-                url: '#',
-                summary: 'Processing...',
-                createdAt: new Date().toISOString()
-            };
-            setDocuments([newDoc, ...documents]);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('spaceId', spaceId);
+
+            const res = await fetch('http://localhost:4000/api/documents/upload', {
+                method: 'POST',
+                body: formData
+                // Don't set Content-Type header - browser will set it with boundary
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log(`PDF uploaded: ${data.extractedLength} characters extracted`);
+                // Always refresh from server after upload
+                await fetchDocuments(1); // Reset to page 1 to see new document
+            } else {
+                const error = await res.json();
+                alert('Upload failed: ' + (error.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error uploading document:', error);
+            alert('Upload failed: ' + error.message);
+        } finally {
             setUploading(false);
-        }, 1500);
+        }
     };
 
     const analyzeDocument = (doc) => {
@@ -63,14 +107,72 @@ const DocumentManager = () => {
         });
     };
 
+    const handleEditDocument = (doc) => {
+        setEditingDoc(doc.id);
+        setEditForm({ title: doc.title, summary: doc.summary || '' });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingDoc(null);
+        setEditForm({ title: '', summary: '' });
+    };
+
+    const handleUpdateDocument = async (docId) => {
+        try {
+            const res = await fetch(`http://localhost:4000/api/documents/${docId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editForm)
+            });
+
+            if (res.ok) {
+                setEditingDoc(null);
+                setEditForm({ title: '', summary: '' });
+                // Always refresh from server after update
+                await fetchDocuments(currentPage); // Refresh documents list from server
+            } else {
+                const error = await res.json();
+                alert('Failed to update document: ' + (error.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error updating document:', error);
+            alert('Failed to update document: ' + error.message);
+        }
+    };
+
+    const handleDeleteDocument = async (docId) => {
+        if (!confirm('Are you sure you want to delete this document?')) return;
+
+        try {
+            const res = await fetch(`http://localhost:4000/api/documents/${docId}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                // Always refresh from server after delete
+                await fetchDocuments(currentPage); // Refresh documents list from server
+                // Clear selected doc if it was deleted
+                if (selectedDoc?.id === docId) {
+                    setSelectedDoc(null);
+                    setAiInsight(null);
+                }
+            } else {
+                const error = await res.json();
+                alert('Failed to delete document: ' + (error.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error deleting document:', error);
+            alert('Failed to delete document: ' + error.message);
+        }
+    };
+
     return (
-        <div className="p-8 max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Documents</h2>
-                    <p className="text-gray-600">Upload and analyze your research, plans, and notes</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Documents</h2>
+                    <p className="text-sm sm:text-base text-gray-600">Upload and analyze your research, plans, and notes</p>
                 </div>
-                <label className="btn-primary cursor-pointer inline-flex items-center gap-2">
+                <label className="btn-primary cursor-pointer inline-flex items-center gap-2 w-full sm:w-auto justify-center">
                     <Upload size={18} />
                     {uploading ? 'Uploading...' : 'Upload Document'}
                     <input type="file" className="hidden" onChange={handleFileUpload} disabled={uploading} />
@@ -80,40 +182,108 @@ const DocumentManager = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Documents List */}
                 <div className="lg:col-span-2 space-y-4">
-                    {documents.map((doc) => (
-                        <div key={doc.id} className="card hover:border-gray-300 transition-colors">
-                            <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-start gap-3 flex-1">
-                                    <div className="p-2 bg-gray-100 rounded-lg">
-                                        <FileText className="text-gray-700" size={20} />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-gray-900 mb-1">{doc.title}</h3>
-                                        <p className="text-sm text-gray-600">{doc.summary}</p>
-                                        <p className="text-xs text-gray-500 mt-2">
-                                            Uploaded {new Date(doc.createdAt).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => analyzeDocument(doc)}
-                                        className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition"
-                                        title="AI Analysis"
-                                    >
-                                        <Sparkles size={18} />
-                                    </button>
-                                    <button className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition">
-                                        <Download size={18} />
-                                    </button>
-                                    <button className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition">
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
-                            </div>
+                    {loading ? (
+                        <>
+                            <SkeletonDocumentCard />
+                            <SkeletonDocumentCard />
+                            <SkeletonDocumentCard />
+                        </>
+                    ) : documents.length === 0 ? (
+                        <div className="card text-center py-12">
+                            <FileText className="mx-auto text-gray-400 mb-4" size={48} />
+                            <p className="text-gray-600 mb-2">No documents yet</p>
+                            <p className="text-sm text-gray-500">Upload your first document to get started</p>
                         </div>
-                    ))}
+                    ) : (
+                        documents.map((doc) => (
+                        <div key={doc.id} className="card hover:border-gray-300 transition-colors">
+                            {editingDoc === doc.id ? (
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Title
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="input-field"
+                                            value={editForm.title}
+                                            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Summary
+                                        </label>
+                                        <textarea
+                                            className="input-field h-32 resize-none"
+                                            value={editForm.summary}
+                                            onChange={(e) => setEditForm({ ...editForm, summary: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            onClick={handleCancelEdit}
+                                            className="btn-secondary inline-flex items-center gap-2"
+                                        >
+                                            <X size={16} /> Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => handleUpdateDocument(doc.id)}
+                                            className="btn-primary inline-flex items-center gap-2"
+                                        >
+                                            <Save size={16} /> Save
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                                        <div className="p-2 bg-gray-100 rounded-lg flex-shrink-0">
+                                            <FileText className="text-gray-700" size={20} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-gray-900 mb-1 truncate">{doc.title}</h3>
+                                            <p className="text-sm text-gray-600 line-clamp-2">{doc.summary}</p>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Uploaded {new Date(doc.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 flex-shrink-0">
+                                        <button
+                                            onClick={() => analyzeDocument(doc)}
+                                            className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition"
+                                            title="AI Analysis"
+                                        >
+                                            <Sparkles size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditDocument(doc)}
+                                            className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition"
+                                            title="Edit document"
+                                        >
+                                            <Edit2 size={18} />
+                                        </button>
+                                        <button className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition">
+                                            <Download size={18} />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteDocument(doc.id)}
+                                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"
+                                            title="Delete document"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        ))
+                    )}
                 </div>
+
+                {/* Pagination */}
+                {pagination && <Pagination pagination={pagination} onPageChange={handlePageChange} />}
 
                 {/* AI Insights Panel */}
                 <div className="card bg-gradient-to-br from-emerald-50 to-white border-emerald-200">

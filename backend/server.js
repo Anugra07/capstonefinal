@@ -8,6 +8,8 @@ import tasksRoutes from './routes/tasks.js';
 import messagesRoutes from './routes/messages.js';
 import documentsRoutes from './routes/documents.js';
 import aiRoutes from './routes/ai.js';
+import seedRoutes from './routes/seed.js';
+import notificationsRoutes from './routes/notifications.js';
 
 dotenv.config();
 
@@ -28,7 +30,7 @@ const corsOptions = {
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
@@ -43,6 +45,8 @@ app.use('/api/tasks', tasksRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/documents', documentsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/seed', seedRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

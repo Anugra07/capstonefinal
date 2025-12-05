@@ -33,7 +33,17 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        spaces: {
+          include: {
+            space: true
+          }
+        }
+      }
+    });
+
     if (!user) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
@@ -44,7 +54,17 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
+
+    // Return user info along with their spaces
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      },
+      spaces: user.spaces.map(sm => sm.space)
+    });
   } catch (error) {
     res.status(500).json({ error: 'Login failed' });
   }

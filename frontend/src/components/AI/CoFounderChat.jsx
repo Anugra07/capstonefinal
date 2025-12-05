@@ -63,7 +63,7 @@ const CoFounderChat = ({ isOpen, onClose, space }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed right-0 top-0 h-screen w-96 bg-white border-l border-gray-200 shadow-2xl flex flex-col z-50 animate-fade-in">
+        <div className="fixed right-0 top-0 h-screen w-full sm:w-96 bg-white border-l border-gray-200 shadow-2xl flex flex-col z-50 animate-fade-in">
             {/* Header */}
             <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
                 <div className="flex items-center gap-3">

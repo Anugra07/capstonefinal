@@ -4,15 +4,37 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get tasks for a space
+// Get tasks for a space with pagination
 router.get('/:spaceId', async (req, res) => {
     const { spaceId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
     try {
+        // Get total count for pagination metadata
+        const total = await prisma.task.count({
+            where: { spaceId }
+        });
+
         const tasks = await prisma.task.findMany({
             where: { spaceId },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            skip,
+            take: limit
         });
-        res.json(tasks);
+
+        res.json({
+            data: tasks,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasNextPage: page < Math.ceil(total / limit),
+                hasPrevPage: page > 1
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -34,6 +56,25 @@ router.post('/', async (req, res) => {
         res.json(task);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Update task status
+router.patch('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { status, title, category } = req.body;
+    try {
+        const task = await prisma.task.update({
+            where: { id },
+            data: {
+                ...(status && { status }),
+                ...(title && { title }),
+                ...(category && { category })
+            }
+        });
+        res.json(task);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update task' });
     }
 });
 

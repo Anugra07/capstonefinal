@@ -5,16 +5,38 @@ import { storeEmbedding } from '../utils/ai.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get messages for a space
+// Get messages for a space with pagination
 router.get('/:spaceId', async (req, res) => {
     const { spaceId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+
     try {
+        // Get total count for pagination metadata
+        const total = await prisma.message.count({
+            where: { spaceId }
+        });
+
         const messages = await prisma.message.findMany({
             where: { spaceId },
-            orderBy: { createdAt: 'asc' },
-            include: { user: { select: { id: true, name: true, email: true } } }
+            orderBy: { createdAt: 'desc' },
+            include: { user: { select: { id: true, name: true, email: true } } },
+            skip,
+            take: limit
         });
-        res.json(messages);
+
+        res.json({
+            data: messages,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasNextPage: page < Math.ceil(total / limit),
+                hasPrevPage: page > 1
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -24,9 +46,13 @@ router.get('/:spaceId', async (req, res) => {
 router.post('/', async (req, res) => {
     const { spaceId, userId, content } = req.body;
     try {
+        if (!spaceId || !userId || !content) {
+            return res.status(400).json({ error: 'spaceId, userId, and content are required' });
+        }
+
         const message = await prisma.message.create({
             data: { spaceId, userId, content },
-            include: { user: { select: { name: true, email: true } } }
+            include: { user: { select: { id: true, name: true, email: true } } }
         });
 
         // Store embedding asynchronously
@@ -34,7 +60,8 @@ router.post('/', async (req, res) => {
 
         res.json(message);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to create message' });
+        console.error('Error creating message:', error);
+        res.status(500).json({ error: 'Failed to create message: ' + error.message });
     }
 });
 
